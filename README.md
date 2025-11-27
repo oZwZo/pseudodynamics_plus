@@ -11,7 +11,7 @@ Check the tutorial notebooks for instructions on preparing your data and downstr
 
 # Installation
 ```bash
-git clone https://gitlab.developers.cam.ac.uk/jcbc/csci/gottgenslab/pseudodynamics_plus.git
+git clone https://github.com/Gottgens-lab/pseudodynamics_plus.git
 cd pseudodynamics_plus
 pip install -e .
 ```
