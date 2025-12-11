@@ -488,7 +488,7 @@ class pde_params(pde_params_base):
         self.n_dim = channels[0] - 1 if time_sensitive  else channels[0]
         self.growth_weight = 0 if growth_weight is None else growth_weight
         self.log_transform = False
-        
+        self.pop_weight = pop_weight
        
         MLP_Module = MLP_surrogate
         # u_theta, density function

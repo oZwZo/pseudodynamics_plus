@@ -26,6 +26,8 @@ class ExperimentConfig:
             self.training_config = self._get_training_config(args)
             self.raw_args = vars(args)
 
+            
+
         elif os.path.exists(config) and config.endswith('.json'):
             try:
                 abs_path = os.path.abspath(config)
@@ -60,22 +62,45 @@ class ExperimentConfig:
             'knn_volume' : args.knn_volume,
         } 
 
-    def _get_model_config(self, model) -> Dict[str, Any]:
-        return {
-            'model_class': model.__class__.__name__,
-            'channels': getattr(model, 'channels', None),
-            'activation_fn': getattr(model, 'activation_fn', None),
-            'ode_tol': getattr(model, 'ode_tol', None),
-            'R_weight': getattr(model, 'R_weight', None),
-            'D_penalty': getattr(model, 'D_penalty', None),
-            'deltax_weight': getattr(model, 'deltax_weight', None),
-            'weight_intensity': getattr(model, 'weight_intensity', None),
-            'time_scale_factor': getattr(model, 'time_scale_factor', None),
-            'time_sensitive': getattr(model, 'time_sensitive', None),
-            'v_channels': getattr(model, 'v_channels', None),
-            'g_channels': getattr(model, 'g_channels', None),
-            'D_channels': getattr(model, 'D_channels', None),
-        }
+    def _get_model_config(self, model=None) -> Dict[str, Any]:
+
+        if (model is None) and isinstance(self.raw_args, dict):
+            config = {
+                'model_class': getattr(self.args , 'model', None),
+                'channels': getattr(self.args, 'channels', None),
+                'activation_fn': getattr(self.args, 'activation_fn', None),
+                'ode_tol': getattr(self.args, 'tol', None),
+                'growth_weight': getattr(self.args, 'growth_weight', None),
+                'R_weight': getattr(self.args, 'R_weight', None),
+                'D_penalty': getattr(self.args, 'D_penalty', None),
+                'deltax_weight': getattr(self.args, 'deltax_weight', None),
+                'weight_intensity': getattr(self.args, 'weight_intensity', None),
+                'time_scale_factor': getattr(self.args, 'time_scale_factor', None),
+                'time_sensitive': getattr(self.args, 'time_sensitive', None),
+                'v_channels': getattr(self.args, 'v_channels', None),
+                'g_channels': getattr(self.args, 'g_channels', None),
+                'D_channels': getattr(self.args, 'D_channels', None),
+            
+            }
+        elif model is not None:
+            config = {
+                'model_class': model.__class__.__name__,
+                'channels': getattr(model, 'channels', None),
+                'activation_fn': getattr(model, 'activation_fn', None),
+                'ode_tol': getattr(model, 'ode_tol', None),
+                'growth_weight': getattr(model, 'growth_weight', None),
+                'R_weight': getattr(model, 'R_weight', None),
+                'D_penalty': getattr(model, 'D_penalty', None),
+                'deltax_weight': getattr(model, 'deltax_weight', None),
+                'weight_intensity': getattr(model, 'weight_intensity', None),
+                'time_scale_factor': getattr(model, 'time_scale_factor', None),
+                'time_sensitive': getattr(model, 'time_sensitive', None),
+                'v_channels': getattr(model, 'v_channels', None),
+                'g_channels': getattr(model, 'g_channels', None),
+                'D_channels': getattr(model, 'D_channels', None),
+            }
+        
+        return config
 
     def _get_training_config(self, args: Namespace) -> Dict[str, Any]:
         return {
@@ -122,6 +147,8 @@ class ExperimentConfig:
 
         self.store_attr(data)
         self.raw_args['config'] = file_path
+
+        self.args = Namespace(**self.raw_args)
 
         if main_dir is not None:
             old_main = self.experiment_config['checkpoint_dir'].split("logs/")[0]

@@ -53,6 +53,8 @@ optional_args.add_argument("--D_penalty", type=float, required=False, default=No
 optional_args.add_argument("--deltax_key", type=str, required=False, default="Delta_DM", help='the key to take deltax from adata')
 optional_args.add_argument("--deltax_weight", type=float, required=False, default=1e-2, help='the weight used to regularize the similarity of deltax and v')
 optional_args.add_argument("--weight_intensity", type=float, required=False, default=None, help='the weight to emphasize the high density cell, > 1 for weighting, <1 for unweighting')
+optional_args.add_argument("--R_weight", type=float, required=False, default=None, help='the weight to balance PDE residue loss and the data-related loss')
+optional_args.add_argument("--growth_weight", type=float, required=False, default=None, help='the weight to regularize the contribution of growth to overall density gain, greater means harder boundary')
 optional_args.add_argument("--time_scale_factor", type=float, required=False, default=5, help='the scale the time for ode')
 optional_args.add_argument("--norm_time", type=str, required=False, default=False, help='Ways to normlize the timepoint, [False, min_minus, log, none]')
 optional_args.add_argument("--time_sensitive", action="store_true", required=False, help='Whether to include time in behavoir functions')
@@ -130,6 +132,8 @@ model = model_class(
         D_penalty = args.D_penalty, 
         deltax_weight = args.deltax_weight,
         weight_intensity = args.weight_intensity,
+        growth_weight = args.growth_weight,
+        R_weight = args.R_weight,
         time_scale_factor = args.time_scale_factor,
         time_sensitive = args.time_sensitive,
         **model_kws
