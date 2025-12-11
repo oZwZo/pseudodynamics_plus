@@ -35,8 +35,8 @@ def pred_to_nday(x, n_timepoint=5, n_dim=5):
     """
     nday = x.detach().cpu().numpy().reshape(n_timepoint,-1)
 
-    if nday.shape[-1] != t5_ad.shape[0]:
-        nday = nday.reshape(n_timepoint, -1, n_dim)
+    # if nday.shape[-1] != t5_ad.shape[0]:
+    #     nday = nday.reshape(n_timepoint, -1, n_dim)
     return nday
 
 ######
@@ -419,7 +419,7 @@ def _sample_by_distance(dist_array, candidate_idx, alpha=None, repeat=1):
     return neighbor_idx, p
 
 
-def sample_deltax(adata,transition_matrix=None, max_degree=1, k=None, xkey=None, pseudotimekey='palantir_pseudotime', progressbar=True, temperature=1):
+def sample_deltax(adata,transition_matrix=None, max_degree=1, k=None, xkey=None, pseudotimekey='palantir_pseudotime', progressbar=True, temperature=1, repeat=1):
     """
     the Key function defines the noise sampling process 
     given the starting point i
@@ -430,15 +430,15 @@ def sample_deltax(adata,transition_matrix=None, max_degree=1, k=None, xkey=None,
     """
 
     if transition_matrix is None:
-        delta_X, neighbor_ls = sample_deltax_from_knn(adata, max_degree=max_degree, k=k, xkey=xkey, pseudotimekey=pseudotimekey, progressbar=progressbar, temperature=temperature)
+        delta_X, neighbor_ls = sample_deltax_from_knn(adata, max_degree=max_degree, k=k, xkey=xkey, pseudotimekey=pseudotimekey, progressbar=progressbar, temperature=temperature, repeat=repeat)
     
     else:
-        delta_X, neighbor_ls = sample_deltax_from_transition(adata, transition_matrix,xkey=xkey)
+        delta_X, neighbor_ls = sample_deltax_from_transition(adata, transition_matrix,xkey=xkey,repeat=repeat)
 
     return delta_X, neighbor_ls
         
 
-def sample_deltax_from_transition(adata, transition_matrix,xkey=None, pseudotimekey='palantir_pseudotime', progressbar=False):
+def sample_deltax_from_transition(adata, transition_matrix,xkey=None, pseudotimekey='palantir_pseudotime', progressbar=False, repeat=1):
     r"""
     the Key function defines the delta-X sampling process 
     given the transition matrix, then sample the delta x
@@ -494,7 +494,7 @@ def sample_deltax_from_transition(adata, transition_matrix,xkey=None, pseudotime
     return np.stack(delta_X), np.array(neighbor_ls)
 
 
-def sample_deltax_from_knn(adata, max_degree=1, k=None, xkey=None, pseudotimekey='palantir_pseudotime', progressbar=False, temperature=1):
+def sample_deltax_from_knn(adata, max_degree=1, k=None, xkey=None, pseudotimekey='palantir_pseudotime', progressbar=False, temperature=1, repeat=1):
     """
     the Key function defines the noise sampling process 
     given the starting point i
@@ -545,7 +545,12 @@ def sample_deltax_from_knn(adata, max_degree=1, k=None, xkey=None, pseudotimekey
             #     knn_idx = pass_2_idx
         
             # knn_idx = traverse_neighbor(connectivities, k, knn_idx) 
-        knn_idx = np.argpartition(connectivities[i].A[0], -1*k)[-1*k:].tolist()
+        try:
+            nn_i = connectivities[i].A[0]
+        except:
+            nn_i = np.array(adata.obsp['connectivities'][i].todense())[0]
+
+        knn_idx = np.argpartition(nn_i, -1*k)[-1*k:].tolist()
 
         # 1 : neighbor with the same condition
         pass_1_idx = knn_idx
@@ -572,13 +577,13 @@ def sample_deltax_from_knn(adata, max_degree=1, k=None, xkey=None, pseudotimekey
 
         
         if len(final_index) == 1:
-            neighbor_idx = i
+            neighbor_idx = [final_index[0]] * repeat
         else:
             # neighbor_idx, p = _sample_by_distance(distance, final_index)
-            knn_p = connectivities[i,final_index].A.flatten()**temperature
+            knn_p = nn_i[final_index].flatten()**temperature
             p = knn_p / knn_p.sum() if knn_p.sum() != 0 else None
 
-            neighbor_idx = np.random.choice(final_index, p=p)
+            neighbor_idx = np.random.choice(final_index,  p=p, size=repeat, replace=True)
 
         delta_X.append( X[neighbor_idx] - X[i] )
         neighbor_ls.append(neighbor_idx)

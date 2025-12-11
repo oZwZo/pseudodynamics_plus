@@ -113,7 +113,7 @@ class HigDim_AnnDS(AnnDataset):
         # observeds
         self.pop_mean = self.popD['mean'] # (tb,)
         # self.T_b = T_b         # (tb,)
-        var_ls = [self.popD['var'][i] / self.popD['n_lib'][i] for i in range(len(self.popD['t']))]
+        var_ls = [self.popD['std'][i]**2 / self.popD['n_lib'][i] for i in range(len(self.popD['t']))]
         self.pop_var = np.array(var_ls)  # (tb,)
         
         ## compute the densities
