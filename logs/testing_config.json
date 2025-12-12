@@ -3,6 +3,7 @@
         "config": null,
         "dataset": "tom_pos",
         "log_name": "tom_pos_fulltime",
+        "progress_bar": true,
         "model": "pde_params",
         "n_dimension": 10,
         "channels": "64,64",
