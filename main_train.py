@@ -37,7 +37,7 @@ optional_args.add_argument("-D", "--dataset", type=str, required=False, default=
 optional_args.add_argument("-K", "--cellstate_key", type=str, required=False, default="cellstate", help='the obsm key on which we represent cell and compute density')
 optional_args.add_argument("-M", "--model", type=str, required=False, default="pde_params", help='the model class, defined in models.py')
 optional_args.add_argument("-W", "--pretrained", type=str, required=False, default=None, help='the path of the pretrained weights')
-optional_args.add_argument("-G", "--gpu_devices", type=int, required=True, default=None, help='select which gpu devices to use')
+optional_args.add_argument("-G", "--gpu_devices", required=True, default=None, help='select which gpu devices to use')
 optional_args.add_argument("-L",  "--log_name", type=str, required=False, default=None, help='the name of the logging directory')
 optional_args.add_argument("--lr", type=float, required=False, default=3e-4, help='the learning rate for training the model')
 optional_args.add_argument("--schedule_lr", type=str, required=False, default="CyclicLR", help='LambdaLR if passing a lambda expression, else StepLR')
