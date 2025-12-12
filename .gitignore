@@ -6,3 +6,5 @@
 **.egg-info
 **.egg
 **.DS_Store
+data
+**.vscode
