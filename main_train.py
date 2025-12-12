@@ -37,7 +37,7 @@ optional_args.add_argument("-D", "--dataset", type=str, required=False, default=
 optional_args.add_argument("-K", "--cellstate_key", type=str, required=False, default="cellstate", help='the obsm key on which we represent cell and compute density')
 optional_args.add_argument("-M", "--model", type=str, required=False, default="pde_params", help='the model class, defined in models.py')
 optional_args.add_argument("-W", "--pretrained", type=str, required=False, default=None, help='the path of the pretrained weights')
-optional_args.add_argument("-G", "--gpu_devices", required=True, default=None, help='select which gpu devices to use')
+optional_args.add_argument("-G", "--gpu_devices", required=False, default=None, help='select which gpu devices to use')
 optional_args.add_argument("-L",  "--log_name", type=str, required=False, default=None, help='the name of the logging directory')
 optional_args.add_argument("--lr", type=float, required=False, default=3e-4, help='the learning rate for training the model')
 optional_args.add_argument("--schedule_lr", type=str, required=False, default="CyclicLR", help='LambdaLR if passing a lambda expression, else StepLR')
@@ -179,7 +179,7 @@ val_DL = DataLoader(val_DS, batch_size=None, num_workers=10)
 
 device = 'gpu' if torch.cuda.is_available() else 'cpu'
 device = 'cpu' if args.gpu_devices == None else 'gpu'
-gpu_device = args.gpu_devices
+gpu_device = args.gpu_devices if args.gpu_devices == None else [args.gpu_devices]
 
 trainer = pl.Trainer(
                     #auto_lr_find=True,
@@ -188,7 +188,7 @@ trainer = pl.Trainer(
                     # fast_dev_run=True,
                     # gradient_clip_val=0.5,
                     default_root_dir=save_path,
-                    devices = [gpu_device], 
+                    devices = gpu_device, 
                     max_epochs=300,
                     callbacks=[callbacks.ModelCheckpoint(filename='{epoch}-{val_loss:.8f}',
                                                 monitor="val_loss", mode="min", save_top_k=2)]

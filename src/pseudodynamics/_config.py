@@ -53,7 +53,6 @@ class ExperimentConfig:
     def _get_dataset_config(self, args: Namespace) -> Dict[str, Any]:
         return {
             'cellstate_key': args.cellstate_key,
-            'n_grid': args.n_grid,
             'n_dimension': args.n_dimension,
             "kde_kws": {"bw_method":None},
             'timepoint_idx': args.timepoint_idx,
