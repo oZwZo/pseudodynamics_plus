@@ -1,0 +1,38 @@
+{
+    "raw_args": {
+        "config": null,
+        "dataset": "tom_pos",
+        "log_name": "tom_pos_fulltime",
+        "progress_bar": true,
+        "model": "pde_params",
+        "time_sensitive": true,
+        "n_dimension": 10,
+        "channels": "64,64",
+        "lr": 0.0003,
+        "schedule_lr": "CyclicLR",
+        "tol": 0.0001,
+        "time_scale_factor": 1,
+        "pretrained": null,
+        "gpu_devices": 0,
+        "weight_intensity": null,
+        "deltax_weight": 0.01,
+        "R_weight": 1,
+        "growth_weight": null,
+        "D_penalty": 1,
+        "cellstate_key": "DM_scaled",
+        "deltax_key": "Delta_DM",
+        "timepoint_idx": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            6,
+            8
+        ],
+        "knn_volume": "False",
+        "batch_size": 50,
+        "bw": null,
+        "norm_time": false
+    }
+}
