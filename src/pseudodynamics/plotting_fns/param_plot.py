@@ -65,8 +65,12 @@ def params_in_umap(adata, prediction, timepoints=None, param='u', copy=True, cel
         timepoints = adata.uns['pop']['t'][:prediction.shape[0]]
 
     if clipping is not None:
-        assert len(clipping) == 2, "the format of clipping threshold should be"
+        assert len(clipping) == 2, "the format of clipping threshold should be (n_min, n_max)"
+        prediction = np.clip(prediction, clipping[0], clipping[1])
     
+    if log:
+        prediction = np.log(prediction -  prediction.min(axis=1, keepdims=True) + 1e-30)
+
     for i, t in enumerate(timepoints):
         adata.obs[f'Day{t}_{param}'] = prediction[i]
 
