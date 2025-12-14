@@ -30,7 +30,7 @@
             6,
             8
         ],
-        "knn_volume": "False",
+        "knn_volume": false,
         "batch_size": 50,
         "bw": null,
         "norm_time": false

@@ -1,0 +1,104 @@
+{
+    "run_date": "2025-12-12 05:25:10",
+    "experiment_config": {
+        "dataset": "tom_pos",
+        "gpu_devices": null,
+        "progress_bar": true,
+        "save_dir": "logs/tom_pos_fulltime/pde_params_tsense",
+        "version": 4,
+        "checkpoint_dir": "logs/tom_pos-DM_scaled_n[0, 1, 2, 3, 4, 6, 8]/pde_params_tsense/lightning_logs/version_4"
+    },
+    "dataset_config": {
+        "cellstate_key": "DM_scaled",
+        "n_dimension": 10,
+        "kde_kws": {
+            "bw_method": 0.5
+        },
+        "timepoint_idx": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            6,
+            8
+        ],
+        "deltax_key": "Delta_DM",
+        "norm_time": false,
+        "knn_volume": false
+    },
+    "model_config": {
+        "model_class": "pde_params",
+        "channels": null,
+        "activation_fn": null,
+        "ode_tol": 0.0001,
+        "growth_weight": 0,
+        "R_weight": 1,
+        "D_penalty": 1,
+        "deltax_weight": 0.01,
+        "weight_intensity": 1,
+        "time_scale_factor": 1,
+        "time_sensitive": true,
+        "v_channels": [
+            11,
+            64,
+            64,
+            10
+        ],
+        "g_channels": [
+            11,
+            64,
+            64,
+            1
+        ],
+        "D_channels": [
+            11,
+            64,
+            64,
+            1
+        ]
+    },
+    "training_config": {
+        "batch_size": 50,
+        "schedule_lr": "CyclicLR",
+        "lr": 0.0003,
+        "max_epochs": 300,
+        "optimizer": "Adam"
+    },
+    "raw_args": {
+        "config": null,
+        "dataset": "tom_pos",
+        "log_name": "tom_pos-DM_scaled_n[0, 1, 2, 3, 4, 6, 8]",
+        "progress_bar": true,
+        "model": "pde_params",
+        "time_sensitive": true,
+        "n_dimension": 10,
+        "channels": "64,64",
+        "lr": 0.0003,
+        "schedule_lr": "CyclicLR",
+        "tol": 0.0001,
+        "time_scale_factor": 1,
+        "pretrained": null,
+        "gpu_devices": null,
+        "weight_intensity": 3,
+        "deltax_weight": 0,
+        "R_weight": null,
+        "growth_weight": null,
+        "D_penalty": 1,
+        "cellstate_key": "DM_scaled",
+        "deltax_key": "Delta_DM",
+        "timepoint_idx": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            6,
+            8
+        ],
+        "knn_volume": "False",
+        "batch_size": 50,
+        "bw": null,
+        "norm_time": false
+    }
+}

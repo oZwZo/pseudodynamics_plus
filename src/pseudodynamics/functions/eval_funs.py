@@ -76,44 +76,53 @@ def forward_get_params(pde_model, DataSet, t_ts=None, s_ts=None, timepoint_label
     return u_pred_ls, g_pred_ay, v_pred_ay, D_pred_ay
 
 
+def agg_param(adata, param:np.ndarray, groupby_key='cell_type', timepoints=None, timepoint_key='timepoint_tx_days', cellcount_threshold = 10, agg_fn='mean'):
+    r"""
+    Aggregate dynamic parameters by specific cell state label
 
-# def aggregate_params_by_pseudotime(params, adata, param_names='g v2', timepoints=None,  pseudotime_key='pseudotime_scaled',nbins=100, return_y=True):
+    Arguments:
+    ------
+    adata (AnnData): Annotated data matrix
+    param (str): Parameter name
+    groupby_key (str): Cell state label
+    timepoints (list): Timepoints to aggregate
+    timepoint_key (str): Anndata.obs key in which the time label is stored
+    cellcount_threshold (int) : the min number of cells in the cell type to be considered
+
+    Returns:
+    ------
+    (DataFrame): Aggregated parameters
+    """
+    if timepoints is None:
+        timepoints = adata.uns['pop']['t']
     
+    # sanity check
+    assert len(timepoints) == param.shape[0], 'timepoints does not match with the given parameter'
+    assert adata.shape[0] == param.shape[1], 'cell number does match with the given parameter'
 
-#     pdt_bins = np.linspace(0,1,nbins+1)
-#     pdt_label = (pdt_bins[1:] + pdt_bins[:-1])/2
-#     adata.obs['pseudotime_bin'] = pd.cut(adata.obs[pseudotime_key], bins=nbins,
-#                                                 labels = pdt_label)
+    param_df = pd.DataFrame(param.T, columns=timepoints)
+    param_df.index = adata.obs_names
+
+    # copy cell state label
+    param_df[groupby_key] = adata.obs[groupby_key].copy()
+
+     # aggregation hre
+    agg_param_df = param_df.groupby(groupby_key).agg(agg_fn)
+
+    # count the number of cells per cell type
+    ct_df = []
+    for it,t in enumerate(timepoints):
+        ad_t = adata[adata.obs[timepoint_key] == t]
+        ct_df.append( ad_t.obs.groupby(groupby_key).agg({timepoint_key:'count'}) )
+
+    ct_df = pd.concat(ct_df, axis=1)
+    ct_count_thres_binary = ct_df.where(ct_df>=cellcount_threshold, np.nan) / ct_df.values
+
+    assert ct_count_thres_binary.shape == agg_param_df.shape
+    agg_param_df = agg_param_df * ct_count_thres_binary.loc[agg_param_df.index].values
 
 
-#     timepoints = adata.uns['pop']['t'] if timepoints is None else timepoints 
-#     fig, axs = plt.subplots(1, len(timepoints), figsize=(4*len(timepoints)+1,3), gridspec_kw={"wspace":0.4, 'hspace':0.3})
-#     axs = axs.flatten() if len(timepoints)>1 else [axs]
-    
-#     y_smooths = []
-#     for i,t in enumerate(timepoints):
-#         y_col = 'Day%s_'%t + param_names
-#         data = adata.obs[['pseudotime_bin']]
-#         data[y_col] = params[i]
-#         gdata = data.groupby("pseudotime_bin").agg({y_col:"mean"}).reset_index()
-
-#         x = np.sort(gdata.pseudotime_bin.unique())
-#         y = gdata[y_col].values
-
-#         model2 = np.poly1d(np.polyfit(x, gdata[y_col], 7))
-
-#         x_smooth = (x[1:] + x[:-1] )/2
-#         y_smooth = (y[1:] + y[:-1] )/2
-
-#         axs[i].scatter(x_smooth, y_smooth, alpha=0.8)
-#         axs[i].plot(x, model2(x), color='red', alpha=0.4)
-
-#         y_smooths.append(y_smooth)
-
-#     if return_y:
-#         return y_smooths
-#     else:
-#         return fig, axs
+    return agg_param_df.dropna(axis=0, how='all') # remove all nan index
 
 @torch.no_grad
 def continuous_params(pde_model, DataSet, 
@@ -121,7 +130,9 @@ def continuous_params(pde_model, DataSet,
                         n_interval = 10,
                         groupby_key = None,
                         agg_fun = 'mean',
-                        chunk_size = 1000):
+                        chunk_size = 1000,
+                        device = 'cpu'
+                        ):
     r"""
     Predict the continuous change of dynamic parameters.
     The cellstate observed at the last timepoint is used.
@@ -135,6 +146,7 @@ def continuous_params(pde_model, DataSet,
     groupby_key : str, aggregate the predicted param according to cell type or cluster, one of the obs_key of the adata
     agg_fun : aggregtion function
     chunk_size : int, minibatch size
+    device : str, on which device to compute the parameters i.e. cpu or cuda:0, cuda:1 ...
     """
 
     param_ls = []
