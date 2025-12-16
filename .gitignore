@@ -8,3 +8,5 @@
 **.DS_Store
 data
 **.vscode
+docs/_build
+docs/generated
